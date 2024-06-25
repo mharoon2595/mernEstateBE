@@ -1,9 +1,25 @@
 import bcrypt, { hash } from "bcrypt";
 import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
+import HttpError from "../lib/Error.js";
+import { validationResult } from "express-validator";
 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
+  const errors = validationResult(req);
   const { username, email, password } = req.body;
+
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+
+  if (password.length < 8) {
+    return next(
+      new HttpError("Password must contain a minimum of 8 characters", 422)
+    );
+  }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -18,32 +34,46 @@ export const register = async (req, res) => {
 
     res.status(201).json({ message: "User created successfully" });
   } catch (err) {
-    console.log(err.meta);
     if (err.meta.target === "User_username_key") {
-      res.status(500).json({ message: "Username already exists" });
+      return next(new HttpError("Username already exists", 500));
     } else if (err.meta.target === "User_email_key") {
-      res.status(500).json({ message: "Email already exists" });
+      return next(new HttpError("Email already exists", 500));
     } else
-      res.status(500).json({
-        message: "Failed to create user, please try again after sometime.",
-      });
+      return next(
+        new HttpError(
+          "Failed to create user, please try again after sometime.",
+          500
+        )
+      );
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
+  const errors = validationResult(req);
   const { username, password } = req.body;
+
+  if (!errors.isEmpty()) {
+    console.log(errors);
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+
   try {
     const user = await prisma.user.findUnique({
       where: { username: username },
     });
 
-    if (!user) return res.status(401).json({ message: "Invalid credentials!" });
+    const hashedPassword = user.password;
+
+    if (!user) return next(new HttpError("Invalid credentials", 401));
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid)
-      return res.status(401).json({ message: "Invalid credentials!" });
+      return next(new HttpError("Invalid credentials", 401));
 
+    const { password: userPassword, ...userInfo } = user;
     // res
     //   .setHeader("Set-Cookie", "test=" + "myValue")
     //   .json({ message: "Logged in" });
@@ -59,12 +89,10 @@ export const login = async (req, res) => {
         maxAge: age,
       })
       .status(200)
-      .json({ message: "Login succesful" });
+      .json(userInfo);
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({ message: "Falied to login, please try again later!" });
+    return next(new HttpError("Falied to login, please try again later!", 500));
   }
 };
 
