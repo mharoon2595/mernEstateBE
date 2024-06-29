@@ -1,5 +1,6 @@
 import HttpError from "../lib/Error.js";
 import prisma from "../lib/prisma.js";
+import jwt from "jsonwebtoken";
 
 export const getPosts = async (req, res, next) => {
   const query = req.query;
@@ -16,13 +17,38 @@ export const getPosts = async (req, res, next) => {
           lte: parseInt(query.maxPrice) || 100000000000,
         },
       },
+      include: {
+        savedPosts: true,
+      },
     });
-    console.log(data);
+
+    let postId = JSON.stringify(data, null, 2);
+
+    // if(token){
+    //   jwt.verify(token,  )
+    // }
+    console.log(postId);
     res.status(200).json(data);
   } catch (err) {
     return next(new HttpError("Failed to get posts"));
   }
 };
+
+export const getMyPosts = async (req, res, next) => {
+  const userId = req.userId;
+
+  try {
+    const fetchMyPosts = await prisma.post.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+    res.status(200).json(fetchMyPosts);
+  } catch (err) {
+    return next(new HttpError("Unable to fetch posts, please try again.", 500));
+  }
+};
+
 export const getPost = async (req, res, next) => {
   const id = req.params.id;
   try {
@@ -38,7 +64,28 @@ export const getPost = async (req, res, next) => {
         },
       },
     });
-    res.status(200).json(post);
+
+    let token = req.cookies?.token;
+
+    if (token) {
+      jwt.verify(token, process.env.SECRET_KEY, async (err, payload) => {
+        if (!err) {
+          const saved = await prisma.savedPosts.findUnique({
+            where: {
+              userId_postId: {
+                postId: id,
+                userId: payload.id,
+              },
+            },
+          });
+          return res
+            .status(200)
+            .json({ ...post, isSaved: saved ? true : false });
+        }
+      });
+    } else {
+      res.status(200).json({ ...post, isSaved: false });
+    }
   } catch (err) {
     return next(new HttpError("Failed to get post"));
   }
@@ -50,6 +97,7 @@ export const addPost = async (req, res, next) => {
     const postData = await prisma.post.create({
       data: {
         ...body.postData,
+        city: body.postData.toLowerCase(),
         userId: userId,
         postDetail: {
           create: body.postDetail,

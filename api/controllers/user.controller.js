@@ -86,3 +86,111 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Failed to delete user" });
   }
 };
+
+export const savePost = async (req, res, next) => {
+  // const id = req.params.id;
+  // const userToken = req.userId;
+
+  // console.log(id, userToken);
+
+  // try {
+  //   const response = await prisma.savedPosts.findUnique({
+  //     where: {
+  //       userId_postId: {
+  //         userId: userToken,
+  //         postId: id,
+  //       },
+  //     },
+  //   });
+
+  //   if (response) {
+  //     try {
+  //       await prisma.savedPosts.delete({
+  //         where: {
+  //           id: response.id,
+  //         },
+  //       });
+  //       res.status(200).json({ message: "Post removed from saved list" });
+  //     } catch (err) {
+  //       console.log(err);
+  //       return next(
+  //         new HttpError("Failed to delete save , please try again later.", 500)
+  //       );
+  //     }
+  //   } else {
+  //     try {
+  //       await prisma.savedPosts.create({
+  //         data: {
+  //           userId: userToken,
+  //           postId: id,
+  //         },
+  //       });
+  //       res.status(200).json({ message: "Post added to saved list" });
+  //     } catch (err) {
+  //       console.log(err);
+  //       return next(
+  //         new HttpError("Failed to add save , please try again later.", 500)
+  //       );
+  //     }
+  //   }
+  // } catch (err) {
+  //   console.log(err);
+  //   return next(
+  //     new HttpError("Failed to save post, please try again later", 500)
+  //   );
+  // }
+  const postId = req.params.id;
+  const tokenUserId = req.userId;
+
+  try {
+    const savedPost = await prisma.savedPosts.findUnique({
+      where: {
+        userId_postId: {
+          userId: tokenUserId,
+          postId,
+        },
+      },
+    });
+
+    if (savedPost) {
+      await prisma.savedPosts.delete({
+        where: {
+          id: savedPost.id,
+        },
+      });
+      res.status(200).json({ message: "Post removed from saved list" });
+    } else {
+      await prisma.savedPosts.create({
+        data: {
+          userId: tokenUserId,
+          postId,
+        },
+      });
+      res.status(200).json({ message: "Post saved" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to delete users!" });
+  }
+};
+
+export const fetchSavedPosts = async (req, res, next) => {
+  const userId = req.userId;
+
+  try {
+    const fetchPosts = await prisma.savedPosts.findMany({
+      where: {
+        userId: userId,
+      },
+      include: {
+        post: true,
+      },
+    });
+
+    const savedPosts = fetchPosts.map((data) => data.post);
+
+    res.status(200).json(savedPosts);
+  } catch (err) {
+    return next(new HttpError("Failed to fetch saved posts!", 500));
+  }
+};

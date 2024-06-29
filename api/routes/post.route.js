@@ -6,11 +6,13 @@ import {
   addPost,
   deletePost,
   updatePost,
+  getMyPosts,
 } from "../controllers/post.controller.js";
 
 const router = express.Router();
 
 router.get("/", getPosts);
+router.get("/myposts", verifyToken, getMyPosts);
 router.get("/:id", getPost);
 router.post("/", verifyToken, addPost);
 router.put("/:id", verifyToken, updatePost);

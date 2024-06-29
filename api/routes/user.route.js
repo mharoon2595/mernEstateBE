@@ -6,20 +6,24 @@ import {
   updateUser,
   deleteUser,
   fetchUser,
+  savePost,
+  fetchSavedPosts,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
 
 router.get("/", allUsers);
-
+router.get("/savedposts", verifyToken, fetchSavedPosts);
 router.get("/:id", verifyToken, fetchUser);
-
 router.put(
   "/:id",
   verifyToken,
   [check("username").notEmpty(), check("email").isEmail()],
   updateUser
 );
+
+router.post("/save/:id", verifyToken, savePost);
+
 router.delete("/:id", verifyToken, deleteUser);
 
 export default router;

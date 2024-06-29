@@ -2,6 +2,8 @@ import express from "express";
 import loginAuth from "./routes/auth.route.js";
 import userAuth from "./routes/user.route.js";
 import postRoute from "./routes/post.route.js";
+import chatRoute from "./routes/chat.route.js";
+import msgRoute from "./routes/messages.route.js";
 import cookieParser from "cookie-parser";
 import HttpError from "./lib/Error.js";
 import cors from "cors";
@@ -31,6 +33,8 @@ app.use(cookieParser());
 app.use("/api/auth", loginAuth);
 app.use("/api/user", userAuth);
 app.use("/api/post", postRoute);
+app.use("/api/chats", chatRoute);
+app.use("/api/messages", msgRoute);
 
 app.use((req, res, next) => {
   const error = new HttpError("Unsupported route", 404);
