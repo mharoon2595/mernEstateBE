@@ -39,6 +39,7 @@ export const getChat = async (req, res, next) => {
 };
 
 export const getChats = async (req, res, next) => {
+  console.log("getChats runnin");
   const tokenUserId = req.userId;
   try {
     const chats = await prisma.chat.findMany({
@@ -75,14 +76,30 @@ export const getChats = async (req, res, next) => {
 
 export const addChat = async (req, res, next) => {
   const tokenUserId = req.userId;
+  console.log(req.body);
   try {
-    const chat = await prisma.chat.create({
-      data: {
-        userIDs: [tokenUserId, req.body.receiverId],
+    const checkExisting = await prisma.chat.findFirst({
+      where: {
+        AND: [
+          { userIDs: { has: tokenUserId } },
+          { userIDs: { has: req.body.receiverId } },
+        ],
       },
     });
-    res.status(200).json(chat);
+
+    if (!checkExisting) {
+      const chat = await prisma.chat.create({
+        data: {
+          userIDs: [tokenUserId, req.body.receiverId],
+        },
+      });
+
+      return res.status(200).json(chat);
+    } else {
+      return res.status(200).json({ message: "Chat already exists." });
+    }
   } catch (err) {
+    console.log(err);
     return next(
       new HttpError("Something went wrong, please try again later", 500)
     );
@@ -101,12 +118,13 @@ export const readChat = async (req, res, next) => {
       },
       data: {
         seenBy: {
-          set: [tokenUserId],
+          push: [tokenUserId],
         },
       },
     });
     res.status(200).json(chat);
   } catch (err) {
+    console.log(err);
     return next(
       new HttpError("Something went wrong, please try again later", 500)
     );

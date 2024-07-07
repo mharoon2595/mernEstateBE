@@ -5,7 +5,14 @@ import { validationResult } from "express-validator";
 
 export const allUsers = async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        avatar: true,
+        posts: true,
+      },
+    });
     res.status(200).json(users);
   } catch (err) {
     console.log(err);
@@ -18,6 +25,14 @@ export const fetchUser = async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: id },
+      select: {
+        id: true,
+        avatar: true,
+        username: true,
+        email: true,
+        createdAt: true,
+        posts: true,
+      },
     });
     res.status(200).json({ user });
   } catch (err) {
@@ -88,57 +103,6 @@ export const deleteUser = async (req, res) => {
 };
 
 export const savePost = async (req, res, next) => {
-  // const id = req.params.id;
-  // const userToken = req.userId;
-
-  // console.log(id, userToken);
-
-  // try {
-  //   const response = await prisma.savedPosts.findUnique({
-  //     where: {
-  //       userId_postId: {
-  //         userId: userToken,
-  //         postId: id,
-  //       },
-  //     },
-  //   });
-
-  //   if (response) {
-  //     try {
-  //       await prisma.savedPosts.delete({
-  //         where: {
-  //           id: response.id,
-  //         },
-  //       });
-  //       res.status(200).json({ message: "Post removed from saved list" });
-  //     } catch (err) {
-  //       console.log(err);
-  //       return next(
-  //         new HttpError("Failed to delete save , please try again later.", 500)
-  //       );
-  //     }
-  //   } else {
-  //     try {
-  //       await prisma.savedPosts.create({
-  //         data: {
-  //           userId: userToken,
-  //           postId: id,
-  //         },
-  //       });
-  //       res.status(200).json({ message: "Post added to saved list" });
-  //     } catch (err) {
-  //       console.log(err);
-  //       return next(
-  //         new HttpError("Failed to add save , please try again later.", 500)
-  //       );
-  //     }
-  //   }
-  // } catch (err) {
-  //   console.log(err);
-  //   return next(
-  //     new HttpError("Failed to save post, please try again later", 500)
-  //   );
-  // }
   const postId = req.params.id;
   const tokenUserId = req.userId;
 
@@ -192,5 +156,28 @@ export const fetchSavedPosts = async (req, res, next) => {
     res.status(200).json(savedPosts);
   } catch (err) {
     return next(new HttpError("Failed to fetch saved posts!", 500));
+  }
+};
+
+export const getNotifications = async (req, res, next) => {
+  const tokenUserId = req.userId;
+  try {
+    const number = await prisma.chat.count({
+      where: {
+        userIDs: {
+          hasSome: [tokenUserId],
+        },
+        NOT: {
+          seenBy: {
+            hasSome: [tokenUserId],
+          },
+        },
+      },
+    });
+    res.status(200).json(number);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, please try agaon later", 500)
+    );
   }
 };

@@ -30,7 +30,9 @@ export const addMessage = async (req, res, next) => {
           id: chatId,
         },
         data: {
-          seenBy: [tokenUserId],
+          seenBy: {
+            set: [tokenUserId],
+          },
           lastMessage: text,
         },
       });

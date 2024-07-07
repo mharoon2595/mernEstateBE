@@ -19,6 +19,11 @@ export const getPosts = async (req, res, next) => {
       },
       include: {
         savedPosts: true,
+        user: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
 
@@ -42,7 +47,11 @@ export const getMyPosts = async (req, res, next) => {
       where: {
         userId: userId,
       },
+      include: {
+        savedPosts: true,
+      },
     });
+    console.log(fetchMyPosts);
     res.status(200).json(fetchMyPosts);
   } catch (err) {
     return next(new HttpError("Unable to fetch posts, please try again.", 500));
@@ -58,6 +67,7 @@ export const getPost = async (req, res, next) => {
         postDetail: true,
         user: {
           select: {
+            id: true,
             username: true,
             avatar: true,
           },
@@ -111,7 +121,22 @@ export const addPost = async (req, res, next) => {
   }
 };
 export const updatePost = async (req, res, next) => {
+  const id = req.params.id;
+  const body = req.body;
+  console.log(body);
   try {
+    const updateData = await prisma.post.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...body.postData,
+        postDetail: {
+          update: { ...body.postDetail },
+        },
+      },
+    });
+    res.status(200).json({ message: "Details updated!" });
   } catch (err) {
     return next(new HttpError("Failed to update post"));
   }

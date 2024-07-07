@@ -8,12 +8,14 @@ import {
   fetchUser,
   savePost,
   fetchSavedPosts,
+  getNotifications,
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
 
 router.get("/", allUsers);
 router.get("/savedposts", verifyToken, fetchSavedPosts);
+router.get("/notification", verifyToken, getNotifications);
 router.get("/:id", verifyToken, fetchUser);
 router.put(
   "/:id",
@@ -23,7 +25,6 @@ router.put(
 );
 
 router.post("/save/:id", verifyToken, savePost);
-
 router.delete("/:id", verifyToken, deleteUser);
 
 export default router;

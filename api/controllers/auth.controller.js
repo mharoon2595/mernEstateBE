@@ -78,11 +78,12 @@ export const login = async (req, res, next) => {
     //   .setHeader("Set-Cookie", "test=" + "myValue")
     //   .json({ message: "Logged in" });
     const age = 1000 * 60 * 60 * 24 * 7;
-    console.log(userInfo);
 
     const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
       expiresIn: age,
     });
+
+    console.log({ ...userInfo, token: token });
 
     res
       .cookie("token", token, {
@@ -90,7 +91,7 @@ export const login = async (req, res, next) => {
         maxAge: age,
       })
       .status(200)
-      .json(userInfo);
+      .json({ ...userInfo, token: token });
   } catch (err) {
     console.log(err);
     return next(new HttpError("Falied to login, please try again later!", 500));
