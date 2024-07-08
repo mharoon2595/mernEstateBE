@@ -91,6 +91,7 @@ export const login = async (req, res, next) => {
         maxAge: age,
         secure: process.env.NODE_ENV === "production",
         sameSite: "None",
+        domain: "https://mernestate.vercel.app",
       })
       .status(200)
       .json({ ...userInfo, token: token });
@@ -106,6 +107,7 @@ export const logout = (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "None",
+      domain: "https://mernestate.vercel.app",
     })
     .status(200)
     .json({ message: "Logout Successful" });
