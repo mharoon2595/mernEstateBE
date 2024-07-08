@@ -96,10 +96,17 @@ export const login = async (req, res, next) => {
       .json({ ...userInfo, token: token });
   } catch (err) {
     console.log(err);
-    return next(new HttpError("Falied to login, please try again later!", 500));
+    return next(new HttpError("Failed to login, please try again later!", 500));
   }
 };
 
 export const logout = (req, res) => {
-  res.clearCookie("token").status(200).json({ message: "Logout Successful" });
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+    })
+    .status(200)
+    .json({ message: "Logout Successful" });
 };
