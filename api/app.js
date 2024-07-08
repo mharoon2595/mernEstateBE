@@ -8,7 +8,7 @@ import HttpError from "./lib/Error.js";
 import cors from "cors";
 
 const app = express();
-const allowedOrigins = ["https://mern-estate-4qvu.vercel.app"];
+const allowedOrigins = ["https://mernestate.vercel.app"];
 
 app.use(
   cors({
