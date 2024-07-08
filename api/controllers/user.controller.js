@@ -174,6 +174,7 @@ export const getNotifications = async (req, res, next) => {
         },
       },
     });
+    console.log("notifications number--->", number);
     res.status(200).json(number);
   } catch (err) {
     return next(
