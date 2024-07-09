@@ -5,6 +5,7 @@ import postRoute from "./routes/post.route.js";
 import chatRoute from "./routes/chat.route.js";
 import msgRoute from "./routes/messages.route.js";
 import HttpError from "./lib/Error.js";
+import cookieParser from "cookie-parser"
 import cors from "cors";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use("/api/auth", loginAuth);
 app.use("/api/user", userAuth);
