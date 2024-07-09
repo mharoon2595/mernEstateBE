@@ -183,6 +183,6 @@ export const getNotifications = async (req, res, next) => {
   }
 };
 
-export const stayActive=(res, req, next)=>{
+export const stayActive=(req, res, next)=>{
   return res.status(200).json({message:"Hello world"})
 }
