@@ -85,16 +85,13 @@ export const login = async (req, res, next) => {
 
     console.log({ ...userInfo, token: token });
 
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        maxAge: age,
-       
-        sameSite: "None",
-        domain: "https://mernestate.vercel.app",
-      })
-      .status(200)
-      .json({ ...userInfo, token: token });
+    res.cookie('token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none'
+  });
+    
+      res.status(200).json({ ...userInfo, token: token });
   } catch (err) {
     console.log(err);
     return next(new HttpError("Failed to login, please try again later!", 500));
@@ -102,13 +99,11 @@ export const login = async (req, res, next) => {
 };
 
 export const logout = (req, res) => {
-  res
-    .clearCookie("token", {
-      httpOnly: true,
-    
-      sameSite: "None",
-      domain: "https://mernestate.vercel.app",
-    })
-    .status(200)
-    .json({ message: "Logout Successful" });
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none'
+  });
+  
+    res.status(200).json({ message: "Logout Successful" });
 };
