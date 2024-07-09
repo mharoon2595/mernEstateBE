@@ -89,7 +89,7 @@ export const login = async (req, res, next) => {
       .cookie("token", token, {
         httpOnly: true,
         maxAge: age,
-        secure: process.env.NODE_ENV === "production",
+       
         sameSite: "None",
         domain: "https://mernestate.vercel.app",
       })
@@ -105,7 +105,7 @@ export const logout = (req, res) => {
   res
     .clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+    
       sameSite: "None",
       domain: "https://mernestate.vercel.app",
     })
