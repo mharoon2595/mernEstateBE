@@ -89,9 +89,9 @@ export const login = async (req, res, next) => {
       .cookie("token", token, {
         httpOnly: true,
         maxAge: age,
-        // secure: process.env.NODE_ENV === "production",
-        // sameSite: "None",
-        // domain: "https://mernestate.vercel.app",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "None",
+        domain: "https://mernestate.vercel.app",
       })
       .status(200)
       .json({ ...userInfo, token: token });
@@ -105,9 +105,9 @@ export const logout = (req, res) => {
   res
     .clearCookie("token", {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      // sameSite: "None",
-      // domain: "https://mernestate.vercel.app",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "None",
+      domain: "https://mernestate.vercel.app",
     })
     .status(200)
     .json({ message: "Logout Successful" });
