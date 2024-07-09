@@ -9,11 +9,13 @@ import {
   savePost,
   fetchSavedPosts,
   getNotifications,
+  stayActive
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
 
 router.get("/", allUsers);
+router.get("/stayActive", stayActive)
 router.get("/savedposts", verifyToken, fetchSavedPosts);
 router.get("/notification", verifyToken, getNotifications);
 router.get("/:id", fetchUser);
