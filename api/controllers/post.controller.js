@@ -107,7 +107,7 @@ export const addPost = async (req, res, next) => {
     const postData = await prisma.post.create({
       data: {
         ...body.postData,
-        city: body.postData.toLowerCase(),
+        city: body.postData.city.toLowerCase(),
         userId: userId,
         postDetail: {
           create: body.postDetail,
