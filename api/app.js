@@ -8,11 +8,7 @@ import HttpError from "./lib/Error.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-const app = express();
-const allowedOrigins = [
-  "https://mernestate.vercel.app",
-  "http://localhost:5173",
-];
+const allowedOrigins = ["https://mernestate.vercel.app"];
 
 app.use(
   cors({
