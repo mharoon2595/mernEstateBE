@@ -29,11 +29,11 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
-app.use("/api/auth", loginAuth);
-app.use("/api/user", userAuth);
-app.use("/api/post", postRoute);
-app.use("/api/chats", chatRoute);
-app.use("/api/messages", msgRoute);
+app.use("/auth", loginAuth);
+app.use("/user", userAuth);
+app.use("/post", postRoute);
+app.use("/chats", chatRoute);
+app.use("/messages", msgRoute);
 
 app.use((req, res, next) => {
   const error = new HttpError("Unsupported route", 404);
