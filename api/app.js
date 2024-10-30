@@ -7,8 +7,8 @@ import msgRoute from "./routes/messages.route.js";
 import HttpError from "./lib/Error.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { app, server } from "./socket/app.js";
 
-const app = express();
 const allowedOrigins = ["https://mernestate.vercel.app"];
 
 app.use(
@@ -49,6 +49,6 @@ app.use((error, req, res, next) => {
     .json({ message: error.message || "An unknown error occured" });
 });
 
-app.listen(8800, () => {
+server.listen(8800, () => {
   console.log("Server is running!");
 });
